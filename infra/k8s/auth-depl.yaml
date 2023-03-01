@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: auth-depl
+spec: # inside spec we write config for number of pods we want to run for auth service
+  replicas: 1 # one copy of the image
+  selector: # the purpose of selector is to tell the deployment how to find all the pods that is going to create
+    matchLabels:
+      app: auth
+  template: # template is about how to create each individual pod that this deployment is going to create
+    metadata:
+      labels:
+        app: auth # Here selector is matching up with the labels we set here
+    spec: # Here we tell the pod how to behave
+      containers:
+        - name: auth # this name is only important for logging process
+          image: us.gcr.io/ticketing-dev-370721/auth
+          env: # kubectl create secret generic jwt-secret --from-literal=JWT_KEY=asdf
+            - name: JWT_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: jwt-secret
+                  key: JWT_KEY
+
+--- # Bleow we write kubernetes service for this deployment which will allow us to access to the pod
+
+apiVersion: v1 
+kind: Service
+metadata:
+  name: auth-srv
+spec: # tells the service how to behave
+  selector: # selector tells this service how to find set of pods that is supposed to govern access to
+    app: auth
+  ports: # list out all the ports that we want to expose on that pod
+    - name: auth
+      protocol: TCP
+      port: 3000
+      targetPort: 3000

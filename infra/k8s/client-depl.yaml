@@ -1,0 +1,34 @@
+# The deployment file creates a deployment in a Kubernetes cluster, which manages a set of replicas of a containerized application.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: client-depl
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: client
+  template:
+    metadata:
+      labels:
+        app: client
+    spec:
+      containers:
+        - name: client
+          image: us.gcr.io/ticketing-dev-370721/client
+--- 
+# To access the application, you will typically create a Kubernetes service that exposes the deployment to the network.
+# Below is the Kubernetes service file that exposes the deployment created above.
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: client-srv
+spec:
+  selector:
+    app: client # this name should be same as name that is written in the above deployment file.
+  ports:
+    - name: client
+      protocol: TCP
+      port: 3000
+      targetPort: 3000

@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: auth-mongo
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: auth-mongo
+  template:
+    metadata:
+      labels:
+        app: auth-mongo
+    spec:
+      containers:
+      - name: auth-mongo
+        image: mongo # this is the name of docker image which is in docker hub
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: auth-mongo-srv
+spec:
+  selector:
+    app: auth-mongo # this name should be same as above depl name
+  ports:
+  - name: db
+    protocol: TCP
+    port: 27017 # this is the default port used by mongodb which it listen for the incoming traffic
+    targetPort: 27017
+

@@ -1,0 +1,28 @@
+apiVersion: skaffold/v2beta11
+kind: Config
+deploy: # The deploy section list out all the different config files we want to load into our cluster
+  kubectl:
+    manifests: # Below we list out all the directories or files we want to sync or make use of
+      - ./infra/k8s/*.yaml
+build:
+  # local:
+  #   push: false
+  googleCloudBuild:
+    projectId: ticketing-dev-370721
+  artifacts:
+    - image: us.gcr.io/ticketing-dev-370721/auth
+      context: auth
+      docker:
+        dockerfile: Dockerfile
+      sync: # it tells skaffold how to hanlde any files that change
+        manual:
+          - src: 'src/**/*.ts'
+            dest: . # the destination dot means where to sync this file to inside of running container
+    - image: us.gcr.io/ticketing-dev-370721/client
+      context: client
+      docker:
+        dockerfile: Dockerfile
+      sync: # it tells skaffold how to hanlde any files that change
+        manual:
+          - src: '**/*.js'
+            dest: .
